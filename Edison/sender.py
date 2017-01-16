@@ -1,41 +1,21 @@
 import os.path
-import time
-import socket
+import requests
+
 file_name = 'temp.txt'
-port = 9090
-ip = '192.168.1.55'
+port = 5000
+ip = 'http://127.0.0.1'
 
-def connect(ip, port):
-    soc = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    print "Try connect"
-    while True:
-        try:
-            soc.connect((ip, port))
-            print "Connected"
-            break
-        except socket.error as msq:
-            print "Can't connect"
-            time.sleep(5)
-            continue
 
-    return soc
-soc = connect(ip, port)
+def get_data(file_name):
+    f = open(file_name, 'r')
+    return f.read()
 
 while True:
     if os.path.exists(file_name):
-        f = open(file_name)
-        str = f.read()
-        #print [int(d) for d in str.split('-') if d != '']
-        while True:
-            try:
-                soc.send(str)
-                print "Send data"
-                break
-            except socket.error as msq:
-                print "Can't send"
-                soc.close()
-                soc = connect(ip, port)
-                continue
+        data = get_data(file_name)
+        print data
+
+        r = requests.post("{}:{}/req".format(ip, port), data={'data': data})
+        print(r.status_code, r.reason)
 
         os.remove(file_name)
-        

@@ -1,18 +1,8 @@
-import os
-import subprocess
-import httplib
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib.dates import DateFormatter
-import os.path
-from Reciver import Reciver
-from flask import Flask, render_template, url_for, request
+import matplotlib.pyplot as plt
+from flask import Flask, render_template, request
 app = Flask(__name__)
 
 plot_id = {'id': 0}
-nxt_id = 0
-prv_id = 0
-#last plot
 
 @app.route('/')
 def index():
@@ -20,9 +10,37 @@ def index():
     plot = 'plot-{}.png'.format(plot_id['id'])
     return render_template('index.html', plot=plot)
 
-Reciver(plot_id)
+def sv_fig(data):
+    y = data
+    x = range(len(data))
+    fig = plt.figure()
+    plt.plot(x, y, )
+    plt.title('Speed')
+    plt.grid()
+    plt.xlabel('Counts')
+    plt.ylabel('Speed (m/s)')
+    # plt.show()
+    plot_id['id'] += 1
+    fig.savefig('static/plot-{}.png'.format(plot_id['id']))
+
+
+def data_processing(raw_data):
+    data = [int(d) for d in raw_data.split('-') if d != '']
+    data = [25120000.0 / d for d in data]
+
+    return data
+
+@app.route('/req', methods=['POST'])
+def req():
+    if request.method == 'POST':
+        print 'data: "{}"'.format(request.form['data'])
+
+        data = data_processing(request.form['data'])
+
+        if len(data) > 3:
+            sv_fig(data)
+
+    return ''
 
 if __name__ == '__main__':
     app.run()
-
-print 'hellow'
