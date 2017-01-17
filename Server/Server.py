@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 from flask import Flask, render_template, request
 app = Flask(__name__)
 
+ip = '192.168.1.95'
+port = 5000
+
 plot_id = {'id': 0}
 
 @app.route('/')
@@ -43,4 +46,4 @@ def req():
     return ''
 
 if __name__ == '__main__':
-    app.run()
+    app.run('http://{}:{}/'.format(ip, port))
